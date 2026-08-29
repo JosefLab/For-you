@@ -1,4 +1,4 @@
-# Biljana Mini-Website ❤️
+# Mini-Website 
 
 ## Starten
 Einfach `index.html` im Browser öffnen.

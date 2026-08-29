@@ -19,7 +19,6 @@ const ACTION_NAMES = {
 };
 
 function logEvent(type, data = {}) {
-  // Seitenaufrufe bleiben lokal, machen das Google-Sheet aber nicht unnötig voll.
   const localEntry = { sessionId, timestamp: new Date().toISOString(), type, step, frage: currentQuestion, ...data };
   const local = JSON.parse(localStorage.getItem("biljana-events") || "[]");
   local.push(localEntry);
@@ -102,8 +101,47 @@ function renderAttention() {
 
 function renderGoodThing() {
   currentQuestion="Angenommen, jemand würde dir heute etwas Gutes tun wollen …";
-  mount(`<div class="content fade-in"><p class="eyebrow">Rein hypothetisch natürlich</p><h2 class="question">${currentQuestion}</h2><div class="actions">${choiceButton("Blumen wären akzeptabel 💐","soft",'data-choice="Blumen wären akzeptabel 💐"')}${choiceButton("Mit Essen kann man mich bestechen 🍫","soft",'data-choice="Mit Essen kann man mich bestechen 🍫"')}${choiceButton("Eine Umarmung wäre toll 🤗","primary",'data-choice="Eine Umarmung wäre toll 🤗"')}</div></div>`);
-  logEvent("page_view"); attachNormalChoices(()=>next(renderMakeDayBetter));
+  mount(`<div class="content fade-in"><p class="eyebrow">Rein hypothetisch natürlich</p><h2 class="question">${currentQuestion}</h2><div class="actions">${choiceButton("Blumen wären akzeptabel 💐","soft",'id="flowers"')}${choiceButton("Mit Essen kann man mich bestechen 🍫","soft",'id="food"')}${choiceButton("Eine Umarmung wäre toll 🤗","primary",'id="hug"')}</div><div id="foodArea"></div></div>`);
+  logEvent("page_view");
+
+  const flowers = document.getElementById("flowers");
+  const food = document.getElementById("food");
+  const hug = document.getElementById("hug");
+
+  flowers.addEventListener("click",()=>{logEvent("choice",{value:"Blumen wären akzeptabel 💐",status:"Gewählt"});next(renderMakeDayBetter);});
+  hug.addEventListener("click",()=>{logEvent("choice",{value:"Eine Umarmung wäre toll 🤗",status:"Gewählt"});next(renderMakeDayBetter);});
+
+  food.addEventListener("click",()=>{
+    logEvent("choice",{value:"Mit Essen kann man mich bestechen 🍫",status:"Textvariante gewählt"});
+
+    flowers.disabled = true;
+    hug.disabled = true;
+    food.disabled = true;
+    flowers.style.opacity = ".45";
+    hug.style.opacity = ".45";
+    food.textContent = "Mit Essen kann man mich bestechen 🍫 ✓";
+
+    document.getElementById("foodArea").innerHTML = `
+      <div class="text-wrap fade-in">
+        <label for="foodText">Womit genau kann man dich bestechen? 😏</label>
+        <textarea id="foodText" maxlength="300" placeholder="Jetzt musst du dich entscheiden … 🍕🍫🍝"></textarea>
+        <button class="btn primary" id="sendFood">Antwort abschicken ❤️</button>
+        <p class="helper" id="foodHelper"></p>
+      </div>`;
+
+    const foodText = document.getElementById("foodText");
+    foodText.focus();
+    document.getElementById("sendFood").addEventListener("click",()=>{
+      const text = foodText.value.trim();
+      if (!text) {
+        document.getElementById("foodHelper").textContent = "Ohne Bestechungsmittel geht's nicht 😏";
+        foodText.focus();
+        return;
+      }
+      logEvent("free_text",{value:text,status:"Gesendet – Essen"});
+      next(renderMakeDayBetter);
+    });
+  });
 }
 
 function renderMakeDayBetter() {

@@ -5,9 +5,7 @@ const progressBar = document.getElementById("progressBar");
 const TOTAL_STEPS = 7;
 let step = 0;
 
-// Später einfach auf eine kleine API/Webhook-Adresse setzen.
-// Beispiel: const LOG_ENDPOINT = "https://deine-domain.at/api/log";
-const LOG_ENDPOINT = "";
+const LOG_ENDPOINT = "https://script.google.com/macros/s/AKfycbyOPk54xZe9HKeekrpCcuIMf9Me8gujKpi4_wwPpgTZleDuTzVRd6mt1GVvAQouUrF-/exec";
 
 const sessionId =
   sessionStorage.getItem("biljana-session") ||
@@ -21,6 +19,11 @@ function nowIso() {
 
 function logEvent(type, data = {}) {
   const entry = {
+    besucher: sessionId,
+    frage: data.page || data.field || `Schritt ${step}`,
+    aktion: type,
+    antwort: data.value || "",
+    status: data.status || data.transformedTo || "",
     sessionId,
     timestamp: nowIso(),
     type,
@@ -28,16 +31,13 @@ function logEvent(type, data = {}) {
     ...data
   };
 
-  // Für lokale Tests: Ereignisse bleiben im Browser erhalten.
   const local = JSON.parse(localStorage.getItem("biljana-events") || "[]");
   local.push(entry);
   localStorage.setItem("biljana-events", JSON.stringify(local));
 
-  // Für späteres Online-Protokoll bereits vorbereitet.
   if (LOG_ENDPOINT) {
     fetch(LOG_ENDPOINT, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(entry),
       keepalive: true
     }).catch(() => {});
@@ -71,7 +71,7 @@ function attachNormalChoices(onChosen) {
   screen.querySelectorAll("[data-choice]").forEach(btn => {
     btn.addEventListener("click", () => {
       const value = btn.dataset.choice;
-      logEvent("choice", { value });
+      logEvent("choice", { value, status: "gewählt" });
       btn.classList.add("pop");
       onChosen(value, btn);
     });
@@ -84,7 +84,7 @@ function makeEscapingButton(btn, label) {
   const escape = (ev) => {
     ev.preventDefault();
     attempts++;
-    logEvent("blocked_attempt", { value: label, attempt: attempts });
+    logEvent("blocked_attempt", { value: label, attempt: attempts, status: "gesperrt" });
 
     const maxX = Math.max(0, Math.min(140, screen.clientWidth - btn.offsetWidth - 20));
     const maxY = 90;
@@ -111,9 +111,9 @@ function renderIntro() {
   const template = document.getElementById("introTemplate");
   screen.replaceChildren(template.content.cloneNode(true));
   setProgress();
-  logEvent("page_view", { page: "intro" });
+  logEvent("page_view", { page: "intro", status: "angezeigt" });
 
-  attachNormalChoices((value) => {
+  attachNormalChoices(() => {
     next(renderMood);
   });
 }
@@ -131,7 +131,7 @@ function renderMood() {
       <p class="helper"></p>
     </div>
   `);
-  logEvent("page_view", { page: "mood" });
+  logEvent("page_view", { page: "mood", status: "angezeigt" });
 
   attachNormalChoices(() => next(renderPerson));
   makeEscapingButton(document.getElementById("badMood"), "Eher nicht so gut");
@@ -150,10 +150,10 @@ function renderPerson() {
       <p class="helper"></p>
     </div>
   `);
-  logEvent("page_view", { page: "person" });
+  logEvent("page_view", { page: "person", status: "angezeigt" });
 
   screen.querySelector('[data-choice="Schon ziemlich toll"]').addEventListener("click", () => {
-    logEvent("choice", { value: "Schon ziemlich toll" });
+    logEvent("choice", { value: "Schon ziemlich toll", status: "gewählt" });
     next(renderAttention);
   });
 
@@ -161,7 +161,8 @@ function renderPerson() {
   tolerable.addEventListener("click", () => {
     logEvent("choice", {
       value: "Man kann ihn aushalten",
-      transformedTo: "Schon ziemlich toll"
+      transformedTo: "Schon ziemlich toll",
+      status: "umgewandelt"
     });
     tolerable.textContent = "Schon ziemlich toll ❤️";
     tolerable.classList.remove("soft");
@@ -187,14 +188,14 @@ function renderAttention() {
       <p class="helper"></p>
     </div>
   `);
-  logEvent("page_view", { page: "attention" });
+  logEvent("page_view", { page: "attention", status: "angezeigt" });
 
   attachNormalChoices(() => next(renderGoodThing));
 
   const noAttention = document.getElementById("noAttention");
   noAttention.addEventListener("click", (ev) => {
     ev.preventDefault();
-    logEvent("blocked_attempt", { value: "Ich brauche keine" });
+    logEvent("blocked_attempt", { value: "Ich brauche keine", status: "gesperrt" });
     screen.querySelector(".helper").textContent =
       "Diese Antwort wurde wegen offensichtlicher Unglaubwürdigkeit gesperrt. 😌";
     noAttention.classList.add("pop");
@@ -213,7 +214,7 @@ function renderGoodThing() {
       </div>
     </div>
   `);
-  logEvent("page_view", { page: "good_thing" });
+  logEvent("page_view", { page: "good_thing", status: "angezeigt" });
 
   attachNormalChoices(() => next(renderMakeDayBetter));
 }
@@ -231,20 +232,18 @@ function renderMakeDayBetter() {
       <div id="ideaArea"></div>
     </div>
   `);
-  logEvent("page_view", { page: "make_day_better" });
+  logEvent("page_view", { page: "make_day_better", status: "angezeigt" });
 
   screen.querySelectorAll("[data-choice]").forEach(btn => {
     btn.addEventListener("click", () => {
-      logEvent("choice", { value: btn.dataset.choice });
+      logEvent("choice", { value: btn.dataset.choice, status: "gewählt" });
       next(renderAnnoying);
     });
   });
 
   document.getElementById("ownIdea").addEventListener("click", () => {
-    logEvent("choice", { value: "Ich hätte da schon eine Idee" });
+    logEvent("choice", { value: "Ich hätte da schon eine Idee", status: "Textvariante gewählt" });
 
-    // Sobald die Freitext-Variante gewählt wurde, ist die Entscheidung fix.
-    // Die anderen beiden Antworten können nicht mehr ausgewählt werden.
     screen.querySelectorAll("[data-choice]").forEach(btn => {
       btn.disabled = true;
       btn.style.opacity = "0.45";
@@ -270,7 +269,7 @@ function renderMakeDayBetter() {
         document.getElementById("ideaText").placeholder = "Ein bisschen mutiger bitte 😏";
         return;
       }
-      logEvent("free_text", { field: "own_idea", value: text });
+      logEvent("free_text", { field: "own_idea", value: text, status: "gesendet" });
       next(renderAnnoying);
     });
   });
@@ -289,11 +288,11 @@ function renderAnnoying() {
       <p class="helper"></p>
     </div>
   `);
-  logEvent("page_view", { page: "annoying" });
+  logEvent("page_view", { page: "annoying", status: "angezeigt" });
 
   screen.querySelectorAll("[data-choice]").forEach(btn => {
     btn.addEventListener("click", () => {
-      logEvent("choice", { value: btn.dataset.choice });
+      logEvent("choice", { value: btn.dataset.choice, status: "gewählt" });
       next(renderFinal);
     });
   });
@@ -302,7 +301,8 @@ function renderAnnoying() {
   very.addEventListener("click", () => {
     logEvent("choice", {
       value: "Unfassbar anstrengend",
-      transformedTo: "… aber irgendwie mag ich ihn trotzdem"
+      transformedTo: "… aber irgendwie mag ich ihn trotzdem",
+      status: "umgewandelt"
     });
 
     very.innerHTML = `<span class="strike">Unfassbar anstrengend 🙄</span><br><span>… aber irgendwie mag ich ihn trotzdem ❤️</span>`;
@@ -321,11 +321,9 @@ function renderFinal() {
       <p class="final-note">Du kannst jetzt aufhören auf den Bildschirm zu schauen und mich anlächeln. 😏❤️</p>
     </div>
   `);
-  logEvent("page_view", { page: "final" });
-  logEvent("completed");
+  logEvent("page_view", { page: "final", status: "angezeigt" });
+  logEvent("completed", { status: "abgeschlossen" });
   progressBar.style.width = "100%";
 }
 
-// Für Tests: ?debug=1 an die URL hängen und in der Browser-Konsole
-// localStorage.getItem("biljana-events") ansehen.
 renderIntro();

@@ -242,6 +242,19 @@ function renderMakeDayBetter() {
 
   document.getElementById("ownIdea").addEventListener("click", () => {
     logEvent("choice", { value: "Ich hätte da schon eine Idee" });
+
+    // Sobald die Freitext-Variante gewählt wurde, ist die Entscheidung fix.
+    // Die anderen beiden Antworten können nicht mehr ausgewählt werden.
+    screen.querySelectorAll("[data-choice]").forEach(btn => {
+      btn.disabled = true;
+      btn.style.opacity = "0.45";
+      btn.style.cursor = "not-allowed";
+    });
+
+    const ownIdea = document.getElementById("ownIdea");
+    ownIdea.disabled = true;
+    ownIdea.textContent = "Ich hätte da schon eine Idee … 😏 ✓";
+
     document.getElementById("ideaArea").innerHTML = `
       <div class="text-wrap fade-in">
         <label for="ideaText">Na dann raus damit … 😏</label>

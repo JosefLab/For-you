@@ -1,4 +1,4 @@
-Mini-Website
+# Biljana Mini-Website ❤️
 
 ## Starten
 Einfach `index.html` im Browser öffnen.
@@ -38,3 +38,7 @@ In `script.js` gibt es:
 Sobald wir einen kleinen kostenlosen/ günstigen Logging-Endpunkt eingerichtet haben, tragen wir dort die URL ein. Dann werden die Events zusätzlich online gespeichert und du kannst sie von deinem Gerät aus ansehen.
 
 Wichtig: GitHub Pages selbst kann keine Antworten speichern.
+
+
+## Version 2
+- Nach Auswahl von „Ich hätte da schon eine Idee …“ werden die anderen Antwortmöglichkeiten sofort deaktiviert.

@@ -115,34 +115,12 @@ function renderGoodThing() {
 
   food.addEventListener("click",()=>{
     logEvent("choice",{value:"Mit Essen kann man mich bestechen 🍫",status:"Textvariante gewählt"});
-
-    flowers.disabled = true;
-    hug.disabled = true;
-    food.disabled = true;
-    flowers.style.opacity = ".45";
-    hug.style.opacity = ".45";
+    flowers.disabled = true; hug.disabled = true; food.disabled = true;
+    flowers.style.opacity = ".45"; hug.style.opacity = ".45";
     food.textContent = "Mit Essen kann man mich bestechen 🍫 ✓";
-
-    document.getElementById("foodArea").innerHTML = `
-      <div class="text-wrap fade-in">
-        <label for="foodText">Womit genau kann man dich bestechen? 😏</label>
-        <textarea id="foodText" maxlength="300" placeholder="Jetzt musst du dich entscheiden … 🍕🍫🍝"></textarea>
-        <button class="btn primary" id="sendFood">Antwort abschicken ❤️</button>
-        <p class="helper" id="foodHelper"></p>
-      </div>`;
-
-    const foodText = document.getElementById("foodText");
-    foodText.focus();
-    document.getElementById("sendFood").addEventListener("click",()=>{
-      const text = foodText.value.trim();
-      if (!text) {
-        document.getElementById("foodHelper").textContent = "Ohne Bestechungsmittel geht's nicht 😏";
-        foodText.focus();
-        return;
-      }
-      logEvent("free_text",{value:text,status:"Gesendet – Essen"});
-      next(renderMakeDayBetter);
-    });
+    document.getElementById("foodArea").innerHTML = `<div class="text-wrap fade-in"><label for="foodText">Womit genau kann man dich bestechen? 😏</label><textarea id="foodText" maxlength="300" placeholder="Jetzt musst du dich entscheiden … 🍕🍫🍝"></textarea><button class="btn primary" id="sendFood">Antwort abschicken ❤️</button><p class="helper" id="foodHelper"></p></div>`;
+    const foodText = document.getElementById("foodText"); foodText.focus();
+    document.getElementById("sendFood").addEventListener("click",()=>{const text=foodText.value.trim();if(!text){document.getElementById("foodHelper").textContent="Ohne Bestechungsmittel geht's nicht 😏";foodText.focus();return;}logEvent("free_text",{value:text,status:"Gesendet – Essen"});next(renderMakeDayBetter);});
   });
 }
 
@@ -162,52 +140,35 @@ function renderMakeDayBetter() {
 
 function renderAnnoying() {
   currentQuestion="Wie anstrengend ist der Mensch, der dir diesen Link geschickt hat, eigentlich?";
-  mount(`<div class="content fade-in"><p class="eyebrow">Letzte Kontrollfrage</p><h2 class="question">${currentQuestion}</h2><div class="actions">${choiceButton("Überhaupt nicht 😇","primary",'data-choice="Überhaupt nicht 😇"')}${choiceButton("Er hat seine Momente 😏","soft",'data-choice="Er hat seine Momente 😏"')}${choiceButton("Unfassbar anstrengend 🙄","danger-ish",'id="veryAnnoying"')}</div><p class="helper"></p></div>`);
-  logEvent("page_view");screen.querySelectorAll("[data-choice]").forEach(btn=>btn.addEventListener("click",()=>{logEvent("choice",{value:btn.dataset.choice,status:"Gewählt"});next(renderWhy);}));
+  mount(`<div class="content fade-in"><p class="eyebrow">Letzte Kontrollfrage</p><h2 class="question">${currentQuestion}</h2><div class="actions">${choiceButton("Überhaupt nicht 😇","primary",'id="notAnnoying"')}${choiceButton("Er hat seine Momente 😏","soft",'id="hasMoments"')}${choiceButton("Unfassbar anstrengend 🙄","danger-ish",'id="veryAnnoying"')}</div><p class="helper"></p></div>`);
+  logEvent("page_view");
+  document.getElementById("notAnnoying").addEventListener("click",()=>{logEvent("choice",{value:"Überhaupt nicht 😇",status:"Gewählt"});next(renderWhy);});
+  document.getElementById("hasMoments").addEventListener("click",()=>{logEvent("choice",{value:"Er hat seine Momente 😏",status:"Gewählt"});screen.querySelector(".helper").textContent="Das nehme ich jetzt einfach mal als Kompliment. 😌";next(renderWhy,3000);});
   const very=document.getElementById("veryAnnoying");very.addEventListener("click",()=>{logEvent("choice",{value:"Unfassbar anstrengend 🙄",transformedTo:"… aber irgendwie mag ich ihn trotzdem ❤️",status:"Umgewandelt"});very.innerHTML=`<span class="strike">Unfassbar anstrengend 🙄</span><br><span>… aber irgendwie mag ich ihn trotzdem ❤️</span>`;screen.querySelector(".helper").textContent="So. Jetzt stimmt's. 😌";next(renderWhy,3000);});
 }
 
 function renderWhy() {
   currentQuestion = "Was glaubst du eigentlich, warum ich diese Seite gemacht habe? 😏";
-  mount(`<div class="content fade-in"><p class="eyebrow">Eine Sache interessiert mich noch</p><h2 class="question">${currentQuestion}</h2><div class="actions">${choiceButton("Weil dir langweilig war 😂","soft",'data-choice="Weil dir langweilig war 😂"')}${choiceButton("Weil du mich zum Lächeln bringen wolltest ❤️","primary",'data-choice="Weil du mich zum Lächeln bringen wolltest ❤️"')}${choiceButton("Weil du eindeutig zu viel Zeit hast 🙄","danger-ish",'id="tooMuchTime"')}</div><p class="helper"></p></div>`);
+  mount(`<div class="content fade-in"><p class="eyebrow">Eine Sache interessiert mich noch</p><h2 class="question">${currentQuestion}</h2><div class="actions">${choiceButton("Weil dir langweilig war 😂","soft",'id="bored"')}${choiceButton("Weil du mich zum Lächeln bringen wolltest ❤️","primary",'id="makeSmile"')}${choiceButton("Weil du eindeutig zu viel Zeit hast 🙄","danger-ish",'id="tooMuchTime"')}</div><p class="helper"></p></div>`);
   logEvent("page_view");
-  screen.querySelectorAll("[data-choice]").forEach(btn=>btn.addEventListener("click",()=>{
-    logEvent("choice",{value:btn.dataset.choice,status:"Gewählt"});
-    next(renderCompliment);
-  }));
-
+  document.getElementById("makeSmile").addEventListener("click",()=>{logEvent("choice",{value:"Weil du mich zum Lächeln bringen wolltest ❤️",status:"Gewählt"});next(renderCompliment);});
+  document.getElementById("bored").addEventListener("click",()=>{logEvent("choice",{value:"Weil dir langweilig war 😂",status:"Gewählt"});screen.querySelector(".helper").textContent="Frech. 😂 Aber für Langeweile wäre das schon ziemlich viel Aufwand.";next(renderCompliment,3000);});
   const tooMuchTime = document.getElementById("tooMuchTime");
-  tooMuchTime.addEventListener("click",()=>{
-    logEvent("choice",{value:"Weil du eindeutig zu viel Zeit hast 🙄",transformedTo:"Weil du dir offensichtlich Mühe gegeben hast 😌",status:"Umgewandelt"});
-    tooMuchTime.innerHTML = `<span class="strike">Weil du eindeutig zu viel Zeit hast 🙄</span><br><span>Weil du dir offensichtlich Mühe gegeben hast 😌</span>`;
-    screen.querySelector(".helper").textContent = "So klingt das schon viel besser. 😌";
-    next(renderCompliment,3000);
-  });
+  tooMuchTime.addEventListener("click",()=>{logEvent("choice",{value:"Weil du eindeutig zu viel Zeit hast 🙄",transformedTo:"Weil du dir offensichtlich Mühe gegeben hast 😌",status:"Umgewandelt"});tooMuchTime.innerHTML=`<span class="strike">Weil du eindeutig zu viel Zeit hast 🙄</span><br><span>Weil du dir offensichtlich Mühe gegeben hast 😌</span>`;screen.querySelector(".helper").textContent="So klingt das schon viel besser. 😌";next(renderCompliment,3000);});
 }
 
 function renderCompliment() {
   currentQuestion = "Kurze Unterbrechung";
   mount(`<div class="content fade-in"><p class="eyebrow">Moment mal … ✋</p><h2 class="question">Bevor wir weitermachen:</h2><p class="lead">Du siehst übrigens immer noch wunderschön aus. ❤️</p><div class="actions"><button class="btn primary" id="continueAfterCompliment">Okay. Weitermachen. 😌</button></div></div>`);
   logEvent("page_view");
-  document.getElementById("continueAfterCompliment").addEventListener("click",()=>{
-    logEvent("choice",{value:"Okay. Weitermachen. 😌",status:"Gewählt"});
-    next(renderFinal);
-  });
+  document.getElementById("continueAfterCompliment").addEventListener("click",()=>{logEvent("choice",{value:"Okay. Weitermachen. 😌",status:"Gewählt"});next(renderFinal);});
 }
 
 function renderFinal() {
   currentQuestion="Abschluss";
   mount(`<div class="content fade-in"><p class="eyebrow">Okay Biljana, eine letzte Sache noch …</p><h2 class="question">Ich wollte dir eigentlich nur sagen, dass ich froh bin, dass es dich gibt. ❤️</h2><p class="lead">Das war's.</p><p class="final-note">Du kannst jetzt aufhören auf den Bildschirm zu schauen und mich anlächeln. 😏❤️</p><div class="actions"><button class="btn primary" id="smiled">Hab ich gemacht 😊</button></div><div id="finalReveal"></div></div>`);
   logEvent("page_view");
-  document.getElementById("smiled").addEventListener("click",()=>{
-    logEvent("choice",{value:"Hab ich gemacht 😊",status:"Gewählt"});
-    const smiled = document.getElementById("smiled");
-    smiled.disabled = true;
-    smiled.style.display = "none";
-    document.getElementById("finalReveal").innerHTML = `<p class="lead fade-in">Gut. Genau das war eigentlich der ganze Sinn dieser Seite. ❤️</p>`;
-    logEvent("completed",{status:"Abgeschlossen"});
-    progressBar.style.width="100%";
-  });
+  document.getElementById("smiled").addEventListener("click",()=>{logEvent("choice",{value:"Hab ich gemacht 😊",status:"Gewählt"});const smiled=document.getElementById("smiled");smiled.disabled=true;smiled.style.display="none";document.getElementById("finalReveal").innerHTML=`<p class="lead fade-in">Gut. Genau das war eigentlich der ganze Sinn dieser Seite. ❤️</p>`;logEvent("completed",{status:"Abgeschlossen"});progressBar.style.width="100%";});
 }
 
 renderIntro();

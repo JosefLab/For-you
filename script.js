@@ -61,10 +61,10 @@ function makeEscapingButton(btn, label) {
   const escape = ev => {
     ev.preventDefault(); attempts++;
     logEvent("blocked_attempt", { value: label, attempt: attempts, status: "Gesperrt" });
-    const maxX = Math.max(0, Math.min(140, screen.clientWidth - btn.offsetWidth - 20));
-    const x = (Math.random() * 2 - 1) * maxX;
-    const y = -(25 + Math.random() * 65);
-    btn.style.transform = `translate(${x}px, ${y}px)`;
+    const maxX = Math.max(35, Math.min(90, (screen.clientWidth - btn.offsetWidth) / 2));
+    const direction = Math.random() < 0.5 ? -1 : 1;
+    const x = direction * (35 + Math.random() * Math.max(0, maxX - 35));
+    btn.style.transform = `translateX(${x}px)`;
     const helper = screen.querySelector(".helper");
     if (helper) helper.textContent = attempts === 1 ? "Netter Versuch 😏" : attempts === 2 ? "Der Button hat heute andere Pläne." : "Hartnäckig. Gefällt mir. 😄";
   };

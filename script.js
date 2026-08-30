@@ -88,7 +88,7 @@ function renderPerson() {
   mount(`<div class="content fade-in"><p class="eyebrow">Jetzt wird's wichtig</p><h2 class="question">${currentQuestion}</h2><div class="actions">${choiceButton("Schon ziemlich toll ❤️","primary",'data-choice="Schon ziemlich toll ❤️"')}${choiceButton("Man kann ihn aushalten 😏","soft",'id="tolerable"')}${choiceButton("Frag lieber nicht 🙄","danger-ish escape",'id="dontAsk"')}</div><p class="helper"></p></div>`);
   logEvent("page_view");
   screen.querySelector('[data-choice]').addEventListener("click", () => { logEvent("choice", {value:"Schon ziemlich toll ❤️",status:"Gewählt"}); next(renderAttention); });
-  const tolerable=document.getElementById("tolerable"); tolerable.addEventListener("click",()=>{ logEvent("choice",{value:"Man kann ihn aushalten 😏",transformedTo:"Schon ziemlich toll ❤️",status:"Umgewandelt"}); tolerable.textContent="Schon ziemlich toll ❤️"; tolerable.classList.add("pop"); screen.querySelector(".helper").textContent="Ich wusste, was du eigentlich sagen wolltest. 😌"; next(renderAttention,900); });
+  const tolerable=document.getElementById("tolerable"); tolerable.addEventListener("click",()=>{ logEvent("choice",{value:"Man kann ihn aushalten 😏",transformedTo:"Schon ziemlich toll ❤️",status:"Umgewandelt"}); tolerable.textContent="Schon ziemlich toll ❤️"; tolerable.classList.add("pop"); screen.querySelector(".helper").textContent="Ich wusste, was du eigentlich sagen wolltest. 😌"; next(renderAttention,2500); });
   makeEscapingButton(document.getElementById("dontAsk"),"Frag lieber nicht 🙄");
 }
 
@@ -162,7 +162,7 @@ function renderAnnoying() {
   currentQuestion="Wie anstrengend ist der Mensch, der dir diesen Link geschickt hat, eigentlich?";
   mount(`<div class="content fade-in"><p class="eyebrow">Letzte Kontrollfrage</p><h2 class="question">${currentQuestion}</h2><div class="actions">${choiceButton("Überhaupt nicht 😇","primary",'data-choice="Überhaupt nicht 😇"')}${choiceButton("Er hat seine Momente 😏","soft",'data-choice="Er hat seine Momente 😏"')}${choiceButton("Unfassbar anstrengend 🙄","danger-ish",'id="veryAnnoying"')}</div><p class="helper"></p></div>`);
   logEvent("page_view");screen.querySelectorAll("[data-choice]").forEach(btn=>btn.addEventListener("click",()=>{logEvent("choice",{value:btn.dataset.choice,status:"Gewählt"});next(renderWhy);}));
-  const very=document.getElementById("veryAnnoying");very.addEventListener("click",()=>{logEvent("choice",{value:"Unfassbar anstrengend 🙄",transformedTo:"… aber irgendwie mag ich ihn trotzdem ❤️",status:"Umgewandelt"});very.innerHTML=`<span class="strike">Unfassbar anstrengend 🙄</span><br><span>… aber irgendwie mag ich ihn trotzdem ❤️</span>`;screen.querySelector(".helper").textContent="So. Jetzt stimmt's. 😌";next(renderWhy,1200);});
+  const very=document.getElementById("veryAnnoying");very.addEventListener("click",()=>{logEvent("choice",{value:"Unfassbar anstrengend 🙄",transformedTo:"… aber irgendwie mag ich ihn trotzdem ❤️",status:"Umgewandelt"});very.innerHTML=`<span class="strike">Unfassbar anstrengend 🙄</span><br><span>… aber irgendwie mag ich ihn trotzdem ❤️</span>`;screen.querySelector(".helper").textContent="So. Jetzt stimmt's. 😌";next(renderWhy,3000);});
 }
 
 function renderWhy() {
@@ -179,7 +179,7 @@ function renderWhy() {
     logEvent("choice",{value:"Weil du eindeutig zu viel Zeit hast 🙄",transformedTo:"Weil du dir offensichtlich Mühe gegeben hast 😌",status:"Umgewandelt"});
     tooMuchTime.innerHTML = `<span class="strike">Weil du eindeutig zu viel Zeit hast 🙄</span><br><span>Weil du dir offensichtlich Mühe gegeben hast 😌</span>`;
     screen.querySelector(".helper").textContent = "So klingt das schon viel besser. 😌";
-    next(renderCompliment,1200);
+    next(renderCompliment,3000);
   });
 }
 

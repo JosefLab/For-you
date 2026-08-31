@@ -19,7 +19,6 @@ function mount(html){ screen.innerHTML = html; progressBar.style.width = `${Math
 function next(fn, delay=350){ setTimeout(()=>{ step++; fn(); },delay); }
 function btn(label,id,cls='soft'){ return `<button class="btn ${cls}" id="${id}">${label}</button>`; }
 function bind(id, handler){ document.getElementById(id).addEventListener('click', handler); }
-function choose(value, nextFn){ logEvent('Antwort gewählt',value); next(nextFn); }
 
 function locked(){
   mount(`<div class="content fade-in"><p class="eyebrow">Tag 2</p><h2 class="question">Noch nicht. 👀</h2><p class="lead">Dieser Tag ist noch gesperrt.</p><a class="back-link" href="./">Zurück</a></div>`);
@@ -38,7 +37,7 @@ function joker(){
     ${btn('🎁 Mir etwas gönnen','treat')}
     ${btn('🔁 Einen Moment nochmal erleben','moment')}
     ${btn('⏭️ Einen Tag überspringen','skip')}
-    ${btn('🃏 Joker behalten','keep','primary')}
+    ${btn('🃏 Joker behalten','keep')}
   </div></div>`);
   bind('duty',()=>{logEvent('Antwort gewählt','Eine Verpflichtung streichen'); next(()=>follow('duty'));});
   bind('treat',()=>{logEvent('Antwort gewählt','Mir etwas gönnen'); next(()=>follow('treat'));});
@@ -56,7 +55,7 @@ function follow(type){
     keep:{q:'Aha. Strategisch. Das könnte noch Konsequenzen haben.',o:[['Man weiß ja nie','a'],['Für später','b'],['Ich traue dir nicht 😂','c']]}
   };
   const p=paths[type]; currentQuestion=p.q;
-  mount(`<div class="content fade-in"><p class="eyebrow">Interessant …</p><h2 class="question">${p.q}</h2><div class="actions">${p.o.map(([label,id])=>btn(label,id,id==='text'?'primary':'soft')).join('')}</div><div id="extra"></div></div>`);
+  mount(`<div class="content fade-in"><p class="eyebrow">Interessant …</p><h2 class="question">${p.q}</h2><div class="actions">${p.o.map(([label,id])=>btn(label,id)).join('')}</div><div id="extra"></div></div>`);
   p.o.forEach(([label,id])=>bind(id,()=>{
     logEvent('Folgeantwort gewählt',label);
     if(id==='text') return freeText(type);
@@ -74,11 +73,11 @@ function freeText(type){
 function permission(){
   currentQuestion='Soll hier noch ein Tag 3 auftauchen?';
   mount(`<div class="content fade-in"><p class="eyebrow">Eine Sache noch …</p><h2 class="question">Soll hier eigentlich noch ein Tag 3 auftauchen?</h2><div class="actions">
-    ${btn('👀 Ja, ich bin neugierig.','yes','primary')}
+    ${btn('👀 Ja, ich bin neugierig.','yes')}
     ${btn('🤷 Von mir aus.','maybe')}
-    ${btn('🛑 Nein, zwei Tage reichen mir.','no','danger-ish')}
+    ${btn('🛑 Nein, zwei Tage reichen mir.','no')}
   </div><p class="helper" id="reaction"></p></div>`);
-  bind('yes',()=>finish('Ja, ich bin neugierig.','Dachte ich mir. 😏',true));
+  bind('yes',()=>finish('Ja, ich bin neugierig.','Okay … jetzt muss ich tatsächlich lächeln. 😊',true));
   bind('maybe',()=>finish('Von mir aus.','Diese Begeisterung ist kaum auszuhalten. 😂',true));
   bind('no',()=>finish('Nein, zwei Tage reichen mir.','Verstanden. Dann endet Untitled hier.',false));
 }

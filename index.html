@@ -4,42 +4,45 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#fff8f8" />
-  <title>Für Biljana ❤️</title>
+  <title>Untitled</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    .home-card{min-height:560px}
+    .day-grid{display:grid;gap:14px;margin-top:34px}
+    .day-link,.day-locked{display:flex;align-items:center;justify-content:space-between;width:100%;padding:18px 20px;border-radius:18px;text-decoration:none;font-weight:800;border:1px solid var(--border)}
+    .day-link{background:var(--rose-soft);color:var(--text)}
+    .day-link.preview{background:linear-gradient(135deg,var(--rose),var(--rose-dark));color:#fff}
+    .day-locked{background:#fff;color:var(--muted);opacity:.78}
+    .day-meta{font-size:.82rem;font-weight:700;opacity:.75}
+    .home-note{margin-top:26px;color:var(--muted);font-size:.95rem;line-height:1.5}
+  </style>
 </head>
 <body>
   <main class="app-shell">
-    <section class="card" aria-live="polite">
-      <div class="tiny-hearts" aria-hidden="true">
-        <span>♡</span><span>♡</span><span>♡</span>
-      </div>
-
-      <div id="screen" class="screen"></div>
-
-      <div class="progress" aria-hidden="true">
-        <div id="progressBar" class="progress-bar"></div>
+    <section class="card home-card">
+      <div class="tiny-hearts" aria-hidden="true"><span>·</span><span>·</span><span>·</span></div>
+      <div class="screen">
+        <div class="content fade-in">
+          <p class="eyebrow">Ein kleines fortlaufendes Projekt</p>
+          <h1>Untitled</h1>
+          <p class="lead">Manche Dinge brauchen noch keinen Titel.</p>
+          <div class="day-grid">
+            <a class="day-link" href="day1.html"><span>Tag 1</span><span class="day-meta">✓</span></a>
+            <div id="day2Slot" class="day-locked"><span>Tag 2</span><span class="day-meta">🔒</span></div>
+            <div class="day-locked"><span>Tag 3</span><span class="day-meta">🔒</span></div>
+            <div class="day-locked"><span>Tag 4</span><span class="day-meta">🔒</span></div>
+          </div>
+          <p class="home-note">Nicht alles ist schon bereit. Das ist Absicht.</p>
+        </div>
       </div>
     </section>
   </main>
-
-  <template id="introTemplate">
-    <div class="content fade-in">
-      <p class="eyebrow">Eine kleine Nachricht für dich</p>
-      <h1>
-        Hallo liebe
-        <span class="name">
-          B<span class="heart-i">ı</span>ljana
-        </span>
-        <span class="heart">❤️</span>
-      </h1>
-      <p class="lead">Heute siehst du wieder mal wunderschön aus.</p>
-      <div class="actions">
-        <button class="btn primary" data-choice="❤️">❤️</button>
-        <button class="btn soft" data-choice="Danke 😊">Danke 😊</button>
-      </div>
-    </div>
-  </template>
-
-  <script src="script.js"></script>
+  <script>
+    const params = new URLSearchParams(location.search);
+    if (params.get('preview') === 'joker26') {
+      const slot = document.getElementById('day2Slot');
+      slot.outerHTML = '<a class="day-link preview" href="day2.html?preview=joker26"><span>Tag 2</span><span class="day-meta">TEST</span></a>';
+    }
+  </script>
 </body>
 </html>

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#fff8f8" />
+  <title>Untitled · Tag 1</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <section class="card" aria-live="polite">
+      <div class="tiny-hearts" aria-hidden="true"><span>♡</span><span>♡</span><span>♡</span></div>
+      <div id="screen" class="screen"></div>
+      <div class="progress"><div id="progressBar" class="progress-bar"></div></div>
+    </section>
+  </main>
+
+  <template id="introTemplate">
+    <div class="content fade-in">
+      <p class="eyebrow">Eine kleine Nachricht für dich</p>
+      <h1>Hallo liebe <span class="name">B<span class="heart-i">ı</span>ljana</span> <span class="heart">❤️</span></h1>
+      <p class="lead">Heute siehst du wieder mal wunderschön aus.</p>
+      <div class="actions">
+        <button class="btn primary" data-choice="❤️">❤️</button>
+        <button class="btn soft" data-choice="Danke 😊">Danke 😊</button>
+      </div>
+    </div>
+  </template>
+  <script src="script.js"></script>
+</body>
+</html>

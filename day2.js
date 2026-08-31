@@ -9,7 +9,7 @@ const sessionId = sessionStorage.getItem('biljana-session') || (crypto.randomUUI
 sessionStorage.setItem('biljana-session', sessionId);
 let currentQuestion = 'Tag 2';
 let step = 0;
-const totalSteps = 4;
+const totalSteps = 5;
 
 function logEvent(action, value = '', status = 'Gewählt') {
   const payload = { besucher: sessionId, frage: `Tag 2 – ${currentQuestion}`, aktion: action, antwort: value, status };
@@ -22,6 +22,12 @@ function bind(id, handler){ document.getElementById(id).addEventListener('click'
 
 function locked(){
   mount(`<div class="content fade-in"><p class="eyebrow">Tag 2</p><h2 class="question">Noch nicht. 👀</h2><p class="lead">Dieser Tag ist noch gesperrt.</p><a class="back-link" href="./">Zurück</a></div>`);
+}
+
+function greeting(){
+  currentQuestion='Guten Morgen';
+  mount(`<div class="content fade-in"><p class="eyebrow">Tag 2</p><h2 class="question">Dobro jutro, Biljana. ☀️</h2><p class="lead">Ja. Ich hab extra nachgeschaut. So viel Vorbereitung muss gewürdigt werden. 😂</p><div class="actions">${btn('Weiter','greet','primary')}</div></div>`);
+  bind('greet',()=>next(compliment));
 }
 
 function compliment(){
@@ -91,4 +97,4 @@ function finish(value,text,continueAllowed){
   setTimeout(()=>{mount(`<div class="content fade-in"><p class="eyebrow">Tag 2</p><h2 class="question">${text}</h2><p class="lead">Das war's für heute.</p><a class="back-link" href="./?preview=${PREVIEW_KEY}">Zurück zu Untitled</a></div>`); progressBar.style.width='100%';},1800);
 }
 
-if(isPreview) compliment(); else locked();
+if(isPreview) greeting(); else locked();

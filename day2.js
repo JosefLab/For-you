@@ -1,9 +1,5 @@
 const screen = document.getElementById('screen');
 const progressBar = document.getElementById('progressBar');
-const params = new URLSearchParams(location.search);
-const PREVIEW_KEY = 'joker26';
-const isPreview = params.get('preview') === PREVIEW_KEY;
-
 const LOG_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyOPk54xZe9HKeekrpCcuIMf9Me8gujKpi4_wwPpgTZleDuTzVRd6mt1GVvAQouUrF-/exec';
 const sessionId = sessionStorage.getItem('biljana-session') || (crypto.randomUUID ? crypto.randomUUID() : `s-${Date.now()}-${Math.random().toString(16).slice(2)}`);
 sessionStorage.setItem('biljana-session', sessionId);
@@ -19,10 +15,6 @@ function mount(html){ screen.innerHTML = html; progressBar.style.width = `${Math
 function next(fn, delay=350){ setTimeout(()=>{ step++; fn(); },delay); }
 function btn(label,id,cls='soft'){ return `<button class="btn ${cls}" id="${id}">${label}</button>`; }
 function bind(id, handler){ document.getElementById(id).addEventListener('click', handler); }
-
-function locked(){
-  mount(`<div class="content fade-in"><p class="eyebrow">Tag 2</p><h2 class="question">Noch nicht. 👀</h2><p class="lead">Dieser Tag ist noch gesperrt.</p><a class="back-link" href="./">Zurück</a></div>`);
-}
 
 function greeting(){
   currentQuestion='Guten Morgen';
@@ -104,7 +96,7 @@ function declineReason(){
 
 function finishDeclined(){
   progressBar.style.width='100%';
-  mount(`<div class="content fade-in"><p class="eyebrow">Tag 2</p><h2 class="question">Verstanden. Dann endet Untitled hier.</h2><p class="lead">Das war's für heute.</p><a class="back-link" href="./?preview=${PREVIEW_KEY}">Zurück zu Untitled</a></div>`);
+  mount(`<div class="content fade-in"><p class="eyebrow">Tag 2</p><h2 class="question">Verstanden. Dann endet Untitled hier.</h2><p class="lead">Das war's für heute.</p><a class="back-link" href="./">Zurück zu Untitled</a></div>`);
   progressBar.style.width='100%';
 }
 
@@ -114,7 +106,7 @@ function finish(value,text,continueAllowed){
   document.querySelectorAll('.actions .btn').forEach(b=>b.disabled=true);
   document.getElementById('reaction').textContent=text;
   progressBar.style.width='100%';
-  setTimeout(()=>{mount(`<div class="content fade-in"><p class="eyebrow">Tag 2</p><h2 class="question">${text}</h2><p class="lead">Das war's für heute.</p><a class="back-link" href="./?preview=${PREVIEW_KEY}">Zurück zu Untitled</a></div>`); progressBar.style.width='100%';},1800);
+  setTimeout(()=>{mount(`<div class="content fade-in"><p class="eyebrow">Tag 2</p><h2 class="question">${text}</h2><p class="lead">Das war's für heute.</p><a class="back-link" href="./">Zurück zu Untitled</a></div>`); progressBar.style.width='100%';},1800);
 }
 
-if(isPreview) greeting(); else locked();
+greeting();

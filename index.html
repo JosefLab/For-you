@@ -11,7 +11,6 @@
     .day-grid{display:grid;gap:14px;margin-top:34px}
     .day-link,.day-locked{display:flex;align-items:center;justify-content:space-between;width:100%;padding:18px 20px;border-radius:18px;text-decoration:none;font-weight:800;border:1px solid var(--border)}
     .day-link{background:var(--rose-soft);color:var(--text)}
-    .day-link.preview{background:linear-gradient(135deg,var(--rose),var(--rose-dark));color:#fff}
     .day-locked{background:#fff;color:var(--muted);opacity:.78}
     .day-meta{font-size:.82rem;font-weight:700;opacity:.75}
     .home-note{margin-top:26px;color:var(--muted);font-size:.95rem;line-height:1.5}
@@ -28,7 +27,7 @@
           <p class="lead">Manche Dinge brauchen noch keinen Titel.</p>
           <div class="day-grid">
             <a class="day-link" href="day1.html"><span>Tag 1</span><span class="day-meta">✓</span></a>
-            <div id="day2Slot" class="day-locked"><span>Tag 2</span><span class="day-meta">🔒</span></div>
+            <a class="day-link" href="day2.html"><span>Tag 2</span><span class="day-meta">NEU</span></a>
             <div class="day-locked"><span>Tag 3</span><span class="day-meta">🔒</span></div>
             <div class="day-locked"><span>Tag 4</span><span class="day-meta">🔒</span></div>
           </div>
@@ -37,12 +36,5 @@
       </div>
     </section>
   </main>
-  <script>
-    const params = new URLSearchParams(location.search);
-    if (params.get('preview') === 'joker26') {
-      const slot = document.getElementById('day2Slot');
-      slot.outerHTML = '<a class="day-link preview" href="day2.html?preview=joker26"><span>Tag 2</span><span class="day-meta">TEST</span></a>';
-    }
-  </script>
 </body>
 </html>

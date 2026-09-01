@@ -32,7 +32,7 @@ function greeting(){
 
 function compliment(){
   currentQuestion='Kompliment des Tages';
-  mount(`<div class="content fade-in"><p class="eyebrow">Bevor wir anfangen …</p><h2 class="question">[Kompliment für morgen]</h2><p class="lead">So. Musste gesagt werden.</p><div class="actions">${btn('Weiter zum wichtigen Unsinn. 🃏','go','primary')}</div></div>`);
+  mount(`<div class="content fade-in"><p class="eyebrow">Bevor wir anfangen …</p><h2 class="question">Ich finde dich heute wunderschön in deinem blau-türkisen Kleid. 😊</h2><p class="lead">So. Musste gesagt werden.</p><div class="actions">${btn('Weiter zum wichtigen Unsinn. 🃏','go','primary')}</div></div>`);
   bind('go',()=>next(joker));
 }
 
@@ -85,7 +85,27 @@ function permission(){
   </div><p class="helper" id="reaction"></p></div>`);
   bind('yes',()=>finish('Ja, ich bin neugierig.','Okay … jetzt muss ich tatsächlich lächeln. 😊',true));
   bind('maybe',()=>finish('Von mir aus.','Diese Begeisterung ist kaum auszuhalten. 😂',true));
-  bind('no',()=>finish('Nein, zwei Tage reichen mir.','Verstanden. Dann endet Untitled hier.',false));
+  bind('no',()=>declineReason());
+}
+
+function declineReason(){
+  currentQuestion='Warum soll Untitled enden?';
+  logEvent('Antwort gewählt','Nein, zwei Tage reichen mir.','Fortsetzung abgelehnt');
+  localStorage.setItem('untitled-continue','no');
+  mount(`<div class="content fade-in"><p class="eyebrow">Völlig okay.</p><h2 class="question">Eine Sache würde mich trotzdem interessieren: Warum?</h2><p class="lead">Nur wenn du magst.</p><div class="text-wrap"><label for="why">Wenn du magst, sag mir warum …</label><textarea id="why" maxlength="500" placeholder="Deine Antwort …"></textarea><div class="actions"><button class="btn primary" id="whySend">Antwort abschicken</button><button class="btn soft" id="whySkip">Lieber nicht</button></div><p class="helper" id="whyHelp"></p></div></div>`);
+  bind('whySend',()=>{
+    const value=document.getElementById('why').value.trim();
+    if(!value){document.getElementById('whyHelp').textContent='Du kannst etwas schreiben – oder einfach „Lieber nicht“ wählen. 😊';return;}
+    logEvent('Freitext eingegeben',value,'Grund für keine Fortsetzung');
+    finishDeclined();
+  });
+  bind('whySkip',()=>{logEvent('Feedback übersprungen','Lieber nicht','Kein Grund angegeben'); finishDeclined();});
+}
+
+function finishDeclined(){
+  progressBar.style.width='100%';
+  mount(`<div class="content fade-in"><p class="eyebrow">Tag 2</p><h2 class="question">Verstanden. Dann endet Untitled hier.</h2><p class="lead">Das war's für heute.</p><a class="back-link" href="./?preview=${PREVIEW_KEY}">Zurück zu Untitled</a></div>`);
+  progressBar.style.width='100%';
 }
 
 function finish(value,text,continueAllowed){

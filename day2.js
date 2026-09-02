@@ -19,24 +19,29 @@ function bind(id, handler){ document.getElementById(id).addEventListener('click'
 function greeting(){
   currentQuestion='Guten Morgen';
   mount(`<div class="content fade-in"><p class="eyebrow">Tag 2</p><h2 class="question">Dobro jutro, Biljana. ☀️</h2><p class="lead">Ja. Ich hab extra nachgeschaut. So viel Vorbereitung muss gewürdigt werden. 😂</p><div class="actions">${btn('Weiter','greet','primary')}</div></div>`);
-  bind('greet',()=>next(compliment));
+  bind('greet',()=>next(missedDay));
 }
 
-function compliment(){
-  currentQuestion='Kompliment des Tages';
-  mount(`<div class="content fade-in"><p class="eyebrow">Bevor wir anfangen …</p><h2 class="question">Ich finde dich heute wunderschön in deinem blau-türkisen Kleid. 😊</h2><p class="lead">So. Musste gesagt werden.</p><div class="actions">${btn('Weiter zum wichtigen Unsinn. 🃏','go','primary')}</div></div>`);
-  bind('go',()=>next(joker));
+function missedDay(){
+  currentQuestion='Gestern war etwas vorbereitet';
+  mount(`<div class="content fade-in"><p class="eyebrow">Moment mal … 🤨</p><h2 class="question">Hier war gestern eigentlich etwas für dich vorbereitet.</h2><p class="lead">Offenbar hatte mein Plan eine kleine Schwachstelle: Er hat mit dir gerechnet. 😂</p><div class="actions">${btn('Ich hatte keine Zeit 😇','noTime')}${btn("Ich hab's vergessen 🙈",'forgot')}${btn('Vielleicht wollte ich dich warten lassen 😏','wait')}</div><p class="helper" id="reaction"></p></div>`);
+  bind('noTime',()=>missedReaction('Ich hatte keine Zeit 😇','Akzeptiert. Ich werde mich mit deinem Terminkalender in Verbindung setzen. 😂'));
+  bind('forgot',()=>missedReaction("Ich hab's vergessen 🙈",'Autsch. Ich dachte eigentlich, ich hätte einen etwas bleibenderen Eindruck hinterlassen. 😂'));
+  bind('wait',()=>missedReaction('Vielleicht wollte ich dich warten lassen 😏','Aha … also Absicht. Interessante Entwicklung. 😏',true));
+}
+
+function missedReaction(answer,text,extra=false){
+  logEvent('Antwort gewählt',answer);
+  document.querySelectorAll('.actions .btn').forEach(b=>b.disabled=true);
+  const reaction=document.getElementById('reaction');
+  reaction.textContent=text;
+  if(extra){setTimeout(()=>{reaction.innerHTML += '<br><strong>Ich merke mir das. 👀</strong>';},1100);}
+  setTimeout(()=>next(joker,0),extra?2600:1900);
 }
 
 function joker(){
   currentQuestion='Wofür verwendest du deinen Joker?';
-  mount(`<div class="content fade-in"><p class="eyebrow">Heute bekommst du einen Joker 🃏</p><h2 class="question">Du kannst ihn genau einmal einsetzen. Wofür verwendest du ihn?</h2><div class="actions">
-    ${btn('😴 Eine Verpflichtung streichen','duty')}
-    ${btn('🎁 Mir etwas gönnen','treat')}
-    ${btn('🔁 Einen Moment nochmal erleben','moment')}
-    ${btn('⏭️ Einen Tag überspringen','skip')}
-    ${btn('🃏 Joker behalten','keep')}
-  </div></div>`);
+  mount(`<div class="content fade-in"><p class="eyebrow">Heute bekommst du einen Joker 🃏</p><h2 class="question">Du kannst ihn genau einmal einsetzen. Wofür verwendest du ihn?</h2><div class="actions">${btn('😴 Eine Verpflichtung streichen','duty')}${btn('🎁 Mir etwas gönnen','treat')}${btn('🔁 Einen Moment nochmal erleben','moment')}${btn('⏭️ Einen Tag überspringen','skip')}${btn('🃏 Joker behalten','keep')}</div></div>`);
   bind('duty',()=>{logEvent('Antwort gewählt','Eine Verpflichtung streichen'); next(()=>follow('duty'));});
   bind('treat',()=>{logEvent('Antwort gewählt','Mir etwas gönnen'); next(()=>follow('treat'));});
   bind('moment',()=>{logEvent('Antwort gewählt','Einen Moment nochmal erleben'); next(()=>follow('moment'));});
@@ -54,27 +59,19 @@ function follow(type){
   };
   const p=paths[type]; currentQuestion=p.q;
   mount(`<div class="content fade-in"><p class="eyebrow">Interessant …</p><h2 class="question">${p.q}</h2><div class="actions">${p.o.map(([label,id])=>btn(label,id)).join('')}</div><div id="extra"></div></div>`);
-  p.o.forEach(([label,id])=>bind(id,()=>{
-    logEvent('Folgeantwort gewählt',label);
-    if(id==='text') return freeText(type);
-    next(permission);
-  }));
+  p.o.forEach(([label,id])=>bind(id,()=>{logEvent('Folgeantwort gewählt',label);if(id==='text') return freeText(type);next(permission);}));
 }
 
 function freeText(type){
   document.querySelectorAll('.actions .btn').forEach(b=>{b.disabled=true;b.style.opacity='.45'});
   const label = type==='moment' ? 'Jetzt kannst du mich nicht damit sitzen lassen. 👀' : 'Na dann raus damit. 👀';
   document.getElementById('extra').innerHTML=`<div class="text-wrap fade-in"><label for="free">${label}</label><textarea id="free" maxlength="500" placeholder="Ich höre …"></textarea><button class="btn primary" id="send">Antwort abschicken</button><p class="helper" id="help"></p></div>`;
-  bind('send',()=>{const v=document.getElementById('free').value.trim(); if(!v){document.getElementById('help').textContent='So leicht kommst du da jetzt nicht raus. 😏';return;} logEvent('Freitext eingegeben',v,'Gesendet'); next(permission);});
+  bind('send',()=>{const v=document.getElementById('free').value.trim();if(!v){document.getElementById('help').textContent='So leicht kommst du da jetzt nicht raus. 😏';return;}logEvent('Freitext eingegeben',v,'Gesendet');next(permission);});
 }
 
 function permission(){
   currentQuestion='Soll hier noch ein Tag 3 auftauchen?';
-  mount(`<div class="content fade-in"><p class="eyebrow">Eine Sache noch …</p><h2 class="question">Soll hier eigentlich noch ein Tag 3 auftauchen?</h2><div class="actions">
-    ${btn('👀 Ja, ich bin neugierig.','yes')}
-    ${btn('🤷 Von mir aus.','maybe')}
-    ${btn('🛑 Nein, zwei Tage reichen mir.','no')}
-  </div><p class="helper" id="reaction"></p></div>`);
+  mount(`<div class="content fade-in"><p class="eyebrow">Eine Sache noch …</p><h2 class="question">Soll hier eigentlich noch ein Tag 3 auftauchen?</h2><div class="actions">${btn('👀 Ja, ich bin neugierig.','yes')}${btn('🤷 Von mir aus.','maybe')}${btn('🛑 Nein, zwei Tage reichen mir.','no')}</div><p class="helper" id="reaction"></p></div>`);
   bind('yes',()=>finish('Ja, ich bin neugierig.','Okay … jetzt muss ich tatsächlich lächeln. 😊',true));
   bind('maybe',()=>finish('Von mir aus.','Diese Begeisterung ist kaum auszuhalten. 😂',true));
   bind('no',()=>declineReason());
@@ -85,28 +82,10 @@ function declineReason(){
   logEvent('Antwort gewählt','Nein, zwei Tage reichen mir.','Fortsetzung abgelehnt');
   localStorage.setItem('untitled-continue','no');
   mount(`<div class="content fade-in"><p class="eyebrow">Völlig okay.</p><h2 class="question">Eine Sache würde mich trotzdem interessieren: Warum?</h2><p class="lead">Nur wenn du magst.</p><div class="text-wrap"><label for="why">Wenn du magst, sag mir warum …</label><textarea id="why" maxlength="500" placeholder="Deine Antwort …"></textarea><div class="actions"><button class="btn primary" id="whySend">Antwort abschicken</button><button class="btn soft" id="whySkip">Lieber nicht</button></div><p class="helper" id="whyHelp"></p></div></div>`);
-  bind('whySend',()=>{
-    const value=document.getElementById('why').value.trim();
-    if(!value){document.getElementById('whyHelp').textContent='Du kannst etwas schreiben – oder einfach „Lieber nicht“ wählen. 😊';return;}
-    logEvent('Freitext eingegeben',value,'Grund für keine Fortsetzung');
-    finishDeclined();
-  });
-  bind('whySkip',()=>{logEvent('Feedback übersprungen','Lieber nicht','Kein Grund angegeben'); finishDeclined();});
+  bind('whySend',()=>{const value=document.getElementById('why').value.trim();if(!value){document.getElementById('whyHelp').textContent='Du kannst etwas schreiben – oder einfach „Lieber nicht“ wählen. 😊';return;}logEvent('Freitext eingegeben',value,'Grund für keine Fortsetzung');finishDeclined();});
+  bind('whySkip',()=>{logEvent('Feedback übersprungen','Lieber nicht','Kein Grund angegeben');finishDeclined();});
 }
-
-function finishDeclined(){
-  progressBar.style.width='100%';
-  mount(`<div class="content fade-in"><p class="eyebrow">Tag 2</p><h2 class="question">Verstanden. Dann endet Untitled hier.</h2><p class="lead">Das war's für heute.</p><a class="back-link" href="./">Zurück zu Untitled</a></div>`);
-  progressBar.style.width='100%';
-}
-
-function finish(value,text,continueAllowed){
-  logEvent('Antwort gewählt',value,continueAllowed?'Fortsetzung erlaubt':'Fortsetzung abgelehnt');
-  localStorage.setItem('untitled-continue',continueAllowed?'yes':'no');
-  document.querySelectorAll('.actions .btn').forEach(b=>b.disabled=true);
-  document.getElementById('reaction').textContent=text;
-  progressBar.style.width='100%';
-  setTimeout(()=>{mount(`<div class="content fade-in"><p class="eyebrow">Tag 2</p><h2 class="question">${text}</h2><p class="lead">Das war's für heute.</p><a class="back-link" href="./">Zurück zu Untitled</a></div>`); progressBar.style.width='100%';},1800);
-}
+function finishDeclined(){progressBar.style.width='100%';mount(`<div class="content fade-in"><p class="eyebrow">Tag 2</p><h2 class="question">Verstanden. Dann endet Untitled hier.</h2><p class="lead">Das war's für heute.</p><a class="back-link" href="./">Zurück zu Untitled</a></div>`);progressBar.style.width='100%';}
+function finish(value,text,continueAllowed){logEvent('Antwort gewählt',value,continueAllowed?'Fortsetzung erlaubt':'Fortsetzung abgelehnt');localStorage.setItem('untitled-continue',continueAllowed?'yes':'no');document.querySelectorAll('.actions .btn').forEach(b=>b.disabled=true);document.getElementById('reaction').textContent=text;progressBar.style.width='100%';setTimeout(()=>{mount(`<div class="content fade-in"><p class="eyebrow">Tag 2</p><h2 class="question">${text}</h2><p class="lead">Das war's für heute.</p><a class="back-link" href="./">Zurück zu Untitled</a></div>`);progressBar.style.width='100%';},1800);}
 
 greeting();
